@@ -33,7 +33,7 @@ mcp = FastMCP(
     instructions=(
         "Neleus gives you real-time Hyperliquid market data and optional live trading. "
         "Market tools (list, analyze, scan, book) require no credentials. "
-        "Docs tools (list_docs, search_docs, read_doc) expose the local Neleus documentation corpus. "
+        "Docs tools (list_docs, search_docs, read_doc) fetch the Neleus documentation from the web. "
         "Trading tools (place, cancel, fills, open_orders) require HYPERLIQUID_SIGNER_PRIVATE_KEY. "
         "HIP-4 outcome markets are testnet-only — always pass testnet=True for that scope. "
         "Never submit a live order without the user's explicit confirmation."
@@ -149,7 +149,7 @@ def neleus_get_order_book(
 
 @mcp.tool(annotations=READ_ONLY_LOCAL)
 def neleus_list_docs() -> list[dict]:
-    """List all available Neleus documentation pages."""
+    """List all Neleus documentation pages (fetched from auralshin.github.io/neleus)."""
     return list_docs()
 
 
@@ -159,7 +159,7 @@ def neleus_search_docs(
     limit: Annotated[int, Field(ge=1, le=10)] = 5,
 ) -> list[dict]:
     """
-    Search the local Neleus documentation corpus.
+    Search the Neleus documentation (fetched from auralshin.github.io/neleus).
 
     Returns matching pages with section, route, summary, and an excerpt.
     """
