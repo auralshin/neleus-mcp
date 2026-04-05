@@ -36,6 +36,7 @@ neleus-mcp = "neleus_mcp.server:main"
 Homepage = "https://github.com/auralshin/neleus-mcp"
 Repository = "https://github.com/auralshin/neleus-mcp"
 Documentation = "https://auralshin.github.io/neleus/"
+"Bug Tracker" = "https://github.com/auralshin/neleus-mcp/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/neleus_mcp"]
