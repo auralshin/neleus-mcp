@@ -50,7 +50,6 @@ def analyze_market(
 
     analysis = _analyze(
         symbol=symbol,
-        scope=scope,
         dex=dex,
         timeframe=timeframe,
         lookback_bars=lookback_bars,

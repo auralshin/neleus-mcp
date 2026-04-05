@@ -66,7 +66,6 @@ def neleus_list_markets(
 @mcp.tool(annotations=READ_ONLY_NETWORK)
 def neleus_analyze_market(
     symbol: str,
-    scope: AnalysisScope = "all-perps",
     dex: str = "",
     timeframe: Timeframe = "1h",
     lookback_bars: Annotated[int, Field(ge=20, le=1000)] = 200,
@@ -75,17 +74,15 @@ def neleus_analyze_market(
     """
     Technical analysis on a single Hyperliquid market.
 
-    Returns RSI, trend, SMA/EMA, Bollinger bands, support/resistance, and a directional read.
+    Returns RSI, trend, Bollinger bands, support/resistance, and a directional bias.
 
     symbol:        e.g. "BTC", "ETH-PERP", "GAS"
-    scope:         perps | all-perps | hip3 | spot
-    dex:           required when scope=hip3 (e.g. "flx")
+    dex:           DEX name for HIP-3 markets (e.g. "flx")
     timeframe:     candle interval
     lookback_bars: candle count (min 20, max 1000)
     """
     return analyze_market(
         symbol=symbol,
-        scope=scope,
         dex=dex or None,
         timeframe=timeframe,
         lookback_bars=lookback_bars,
