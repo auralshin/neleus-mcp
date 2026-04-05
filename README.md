@@ -33,18 +33,34 @@ MCP server exposing [Neleus](https://github.com/auralshin/neleus) Hyperliquid to
 
 ## Installation
 
-```bash
-# Claude Code
-claude mcp add neleus -- uvx neleus-mcp
+### 1. Install uv (once)
 
-# With trading credentials
+`uvx` is required to run MCP servers without managing Python environments manually.
+
+```bash
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# or via Homebrew
+brew install uv
+```
+
+### 2. Add to Claude Code
+
+```bash
+claude mcp add neleus -- uvx neleus-mcp
+```
+
+With trading credentials:
+
+```bash
 claude mcp add neleus \
   -e HYPERLIQUID_SIGNER_PRIVATE_KEY=0x... \
   -e HYPERLIQUID_TESTNET=false \
   -- uvx neleus-mcp
 ```
 
-### Claude Desktop
+### 2. Add to Claude Desktop
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
