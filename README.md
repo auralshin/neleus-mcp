@@ -13,6 +13,14 @@ MCP server that exposes [Neleus](https://github.com/auralshin/neleus) Hyperliqui
 | `neleus_scan_markets` | Rank a bounded set of markets by composite TA score |
 | `neleus_get_order_book` | L2 order book snapshot with spread and imbalance |
 
+### Docs tools (no credentials needed)
+
+| Tool | Description |
+|---|---|
+| `neleus_list_docs` | List the local Neleus documentation pages |
+| `neleus_search_docs` | Search the local Neleus docs corpus |
+| `neleus_read_doc` | Read a specific Neleus documentation page by route |
+
 ### Trading tools (credentials required)
 
 | Tool | Description |
@@ -92,19 +100,26 @@ Add to `.claude/settings.json` in your project:
 {
   "mcpServers": {
     "neleus": {
-      "command": "/path/to/.venv/bin/neleus-mcp"
+      "command": "/path/to/.venv/bin/neleus-mcp",
+      "env": {
+        "NELEUS_DOCS_REPO": "/path/to/neleus"
+      }
     }
   }
 }
 ```
+
+If `NELEUS_DOCS_REPO` is omitted, the server also tries the common local-dev layout where `neleus` and `neleus-mcp` are sibling directories.
 
 ### Environment variables
 
 | Variable | Required | Description |
 |---|---|---|
 | `HYPERLIQUID_SIGNER_PRIVATE_KEY` | Trading only | Wallet private key (`0x...`) |
-| `HYPERLIQUID_ACCOUNT_ADDRESS` | Trading only | Wallet address (`0x...`) |
+| `HYPERLIQUID_ACCOUNT_ADDRESS` | No | Optional compatibility metadata for delegated-account flows |
 | `HYPERLIQUID_TESTNET` | No | `true` to default all tools to testnet |
+| `NELEUS_DOCS_REPO` | No | Path to the local `neleus` repository root |
+| `NELEUS_DOCS_MANIFEST_PATH` | No | Path to `docs/assets/ai/page-manifest.json` |
 
 ## Usage examples
 
@@ -114,12 +129,15 @@ Once connected, Claude can answer questions like:
 - *"Analyze BTC on the 4h timeframe."*
 - *"Show me the order book for ETH-PERP."*
 - *"List all HIP-3 markets on the flx DEX."*
+- *"Search the Neleus docs for database config."*
+- *"Read the `cli/market` docs page."*
 - *"What are my open orders?"* (requires credentials)
 - *"Place a limit buy of 0.001 BTC at 95000."* (requires credentials + explicit confirmation)
 
 ## Notes
 
 - All market data is fetched via the Rust Hyperliquid adapter inside `neleus_core`.
+- Docs are read locally from the Neleus MkDocs AI manifest (`docs/assets/ai/page-manifest.json`).
 - HIP-4 outcome markets are testnet-only — pass `testnet=true` for that scope.
 - Trading tools will raise `PermissionError` if credentials are not set.
 - Claude will always ask for confirmation before placing or cancelling orders.

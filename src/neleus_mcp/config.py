@@ -1,10 +1,3 @@
-"""
-Credential and environment configuration for neleus-mcp.
-
-Reads from environment variables. No file I/O — users set credentials
-in their shell or MCP server config, not in files inside this package.
-"""
-
 from __future__ import annotations
 
 import os
@@ -27,4 +20,4 @@ class Config:
 
     @property
     def has_credentials(self) -> bool:
-        return bool(self.private_key and self.account_address)
+        return bool(self.private_key)
