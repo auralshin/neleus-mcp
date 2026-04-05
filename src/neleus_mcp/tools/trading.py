@@ -60,14 +60,14 @@ def cancel_order(
     return _result_to_dict(trader.cancel_order(coin, order_id))
 
 
-def get_open_orders(testnet: bool | None = None) -> list[dict]:
+def get_open_orders(limit: int = 50, testnet: bool | None = None) -> list[dict]:
     from neleus import HyperliquidTrader  # noqa: PLC0415
 
     config = Config.from_env()
     _require_credentials(config)
     use_testnet = testnet if testnet is not None else config.testnet
     trader = HyperliquidTrader(config.private_key, testnet=use_testnet)
-    return [_result_to_dict(o) for o in trader.get_open_orders()]
+    return [_result_to_dict(o) for o in trader.get_open_orders()][:limit]
 
 
 def get_fills(limit: int = 50, testnet: bool | None = None) -> list[dict]:

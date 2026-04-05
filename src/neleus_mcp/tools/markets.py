@@ -3,8 +3,19 @@ from __future__ import annotations
 from typing import Any
 
 
-def _entry_to_dict(entry: Any) -> dict:
-    return entry.to_dict() if hasattr(entry, "to_dict") else vars(entry)
+def _entry_summary(entry: Any) -> dict:
+    # Minimal fields for browsing. Use analyze_market for full detail on a single market.
+    d = entry.to_dict() if hasattr(entry, "to_dict") else vars(entry)
+    out: dict = {"name": d.get("name"), "scope": d.get("scope"), "market_type": d.get("market_type")}
+    if d.get("dex"):
+        out["dex"] = d["dex"]
+    if d.get("max_leverage"):
+        out["max_leverage"] = d["max_leverage"]
+    if d.get("collateral_token"):
+        out["collateral_token"] = d["collateral_token"]
+    if d.get("full_name"):
+        out["full_name"] = d["full_name"]
+    return out
 
 
 def list_markets(
@@ -16,7 +27,15 @@ def list_markets(
     from neleus.market import list_markets as _list  # noqa: PLC0415
 
     catalog = _list(scope=scope, dex=dex, search=search, testnet=testnet)
-    return [_entry_to_dict(e) for e in catalog.entries]
+    return [_entry_summary(e) for e in catalog.entries]
+
+
+_ANALYSIS_FIELDS = (
+    "symbol", "timeframe", "last_price", "price_change_pct",
+    "rsi", "trend", "momentum", "bias",
+    "support", "resistance", "bollinger_upper", "bollinger_lower",
+    "volatility_pct",
+)
 
 
 def analyze_market(
@@ -37,7 +56,8 @@ def analyze_market(
         lookback_bars=lookback_bars,
         testnet=testnet,
     )
-    return analysis.to_dict()
+    d = analysis.to_dict()
+    return {k: d[k] for k in _ANALYSIS_FIELDS if k in d}
 
 
 def scan_markets(
@@ -67,13 +87,19 @@ def scan_markets(
         sort_by=sort_by,
         testnet=testnet,
     )
-    return [vars(row) if not hasattr(row, "to_dict") else row.to_dict() for row in scan.rows]
+    rows = []
+    for row in scan.rows:
+        d = row.to_dict() if hasattr(row, "to_dict") else vars(row)
+        # Keep only the fields Claude needs to present a ranked scan table
+        rows.append({k: d[k] for k in ("symbol", "score", "rsi", "price_change_pct", "volatility_pct", "trend", "bias") if k in d})
+    return rows
 
 
 def get_order_book(
     symbol: str,
     scope: str = "all-perps",
     dex: str | None = None,
+    depth: int = 10,
     testnet: bool = False,
 ) -> dict:
     from neleus.market import resolve_market_entry  # noqa: PLC0415
@@ -102,8 +128,8 @@ def get_order_book(
 
     return {
         "symbol": symbol,
-        "bids": bids[:20],
-        "asks": asks[:20],
+        "bids": bids[:depth],
+        "asks": asks[:depth],
         "best_bid": best_bid,
         "best_ask": best_ask,
         "spread": spread,

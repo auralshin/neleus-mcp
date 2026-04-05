@@ -133,14 +133,17 @@ def neleus_get_order_book(
     symbol: str,
     scope: AnalysisScope = "all-perps",
     dex: str = "",
+    depth: Annotated[int, Field(ge=1, le=50)] = 10,
     testnet: bool = False,
 ) -> dict:
     """
     L2 order book snapshot for a Hyperliquid market.
 
-    Returns top-20 bids/asks, best bid/ask, spread, mid price, and imbalance ratio.
+    Returns top-N bids/asks, best bid/ask, spread, mid price, and imbalance ratio.
+
+    depth: number of price levels to return per side (default 10, max 50)
     """
-    return get_order_book(symbol=symbol, scope=scope, dex=dex or None, testnet=testnet)
+    return get_order_book(symbol=symbol, scope=scope, dex=dex or None, depth=depth, testnet=testnet)
 
 
 # ---------------------------------------------------------------------------
@@ -234,9 +237,12 @@ def neleus_cancel_order(
 
 
 @mcp.tool(annotations=READ_ONLY_NETWORK)
-def neleus_get_open_orders(testnet: bool = False) -> list[dict]:
+def neleus_get_open_orders(
+    limit: Annotated[int, Field(ge=1, le=200)] = 50,
+    testnet: bool = False,
+) -> list[dict]:
     """Open orders for the configured account. Requires HYPERLIQUID_SIGNER_PRIVATE_KEY."""
-    return get_open_orders(testnet=testnet)
+    return get_open_orders(limit=limit, testnet=testnet)
 
 
 @mcp.tool(annotations=READ_ONLY_NETWORK)
