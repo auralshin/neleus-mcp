@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "neleus-mcp"
+version = "0.1.0"
+description = "MCP server exposing Neleus Hyperliquid market tools to Claude"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Neleus Team" }]
+keywords = ["mcp", "hyperliquid", "trading", "claude", "neleus"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "neleus>=0.1.14",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "ruff"]
+
+[project.scripts]
+neleus-mcp = "neleus_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/auralshin/neleus-mcp"
+Repository = "https://github.com/auralshin/neleus-mcp"
+Documentation = "https://auralshin.github.io/neleus/"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/neleus_mcp"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
