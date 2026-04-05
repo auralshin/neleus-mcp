@@ -100,25 +100,23 @@ Add to `.claude/settings.json` in your project:
 {
   "mcpServers": {
     "neleus": {
-      "command": "/path/to/.venv/bin/neleus-mcp",
-      "env": {
-        "NELEUS_DOCS_REPO": "/path/to/neleus"
-      }
+      "command": "/path/to/.venv/bin/neleus-mcp"
     }
   }
 }
 ```
 
-If `NELEUS_DOCS_REPO` is omitted, the server also tries the common local-dev layout where `neleus` and `neleus-mcp` are sibling directories.
+No docs configuration needed — the server fetches the manifest from the deployed docs site automatically.
 
 ### Environment variables
 
 | Variable | Required | Description |
 |---|---|---|
 | `HYPERLIQUID_SIGNER_PRIVATE_KEY` | Trading only | Wallet private key (`0x...`) |
-| `HYPERLIQUID_ACCOUNT_ADDRESS` | No | Optional compatibility metadata for delegated-account flows |
+| `HYPERLIQUID_ACCOUNT_ADDRESS` | No | Optional; used for delegated-account flows |
 | `HYPERLIQUID_TESTNET` | No | `true` to default all tools to testnet |
-| `NELEUS_DOCS_REPO` | No | Path to the local `neleus` repository root |
+| `NELEUS_DOCS_URL` | No | Override the manifest URL (default: deployed GitHub Pages) |
+| `NELEUS_DOCS_MANIFEST_PATH` | No | Use a local manifest file instead of fetching (offline/dev) |
 | `NELEUS_DOCS_MANIFEST_PATH` | No | Path to `docs/assets/ai/page-manifest.json` |
 
 ## Usage examples

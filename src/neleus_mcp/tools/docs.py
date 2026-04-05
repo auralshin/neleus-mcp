@@ -3,54 +3,42 @@ from __future__ import annotations
 import json
 import os
 import re
-from functools import lru_cache
+import time
+import urllib.request
 from pathlib import Path
 from typing import Any
 
-# Environment variables the user can set to point at the manifest.
-# NELEUS_DOCS_MANIFEST_PATH: direct path to page-manifest.json
-# NELEUS_DOCS_REPO: path to the neleus repo root (manifest resolved from there)
-_MANIFEST_PATH_ENV = "NELEUS_DOCS_MANIFEST_PATH"
-_REPO_ROOT_ENV = "NELEUS_DOCS_REPO"
-_MANIFEST_RELATIVE = Path("docs/assets/ai/page-manifest.json")
+_MANIFEST_URL = "https://auralshin.github.io/neleus/assets/ai/page-manifest.json"
+_MANIFEST_URL_ENV = "NELEUS_DOCS_URL"      # override the URL entirely
+_MANIFEST_PATH_ENV = "NELEUS_DOCS_MANIFEST_PATH"  # use a local file instead of fetching
+_CACHE_TTL = 3600  # seconds; re-fetch at most once per hour
+
+_cache: dict[str, Any] | None = None
+_cache_at: float = 0.0
 
 
-def _candidate_paths() -> list[Path]:
-    candidates: list[Path] = []
+def _fetch_manifest() -> dict[str, Any]:
+    # Local file override — useful during docs development or offline use.
+    if path_override := os.environ.get(_MANIFEST_PATH_ENV):
+        return json.loads(Path(path_override).expanduser().read_text(encoding="utf-8"))
 
-    if val := os.environ.get(_MANIFEST_PATH_ENV):
-        candidates.append(Path(val).expanduser())
-
-    if val := os.environ.get(_REPO_ROOT_ENV):
-        candidates.append(Path(val).expanduser() / _MANIFEST_RELATIVE)
-
-    # Sibling-repo layout: /projects/neleus and /projects/neleus-mcp
-    candidates.append(Path(__file__).resolve().parents[3].parent / "neleus" / _MANIFEST_RELATIVE)
-
-    return candidates
+    url = os.environ.get(_MANIFEST_URL_ENV, _MANIFEST_URL)
+    with urllib.request.urlopen(url, timeout=10) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
 
-def _resolve_manifest() -> Path:
-    for path in _candidate_paths():
-        if path.is_file():
-            return path
-    checked = ", ".join(str(p) for p in _candidate_paths())
-    raise FileNotFoundError(
-        f"Neleus docs manifest not found. Checked: {checked}. "
-        f"Set {_MANIFEST_PATH_ENV} or {_REPO_ROOT_ENV}, "
-        f"or run 'mkdocs build' in the neleus repo first."
-    )
-
-
-@lru_cache(maxsize=1)
-def _load_manifest() -> dict[str, Any]:
-    return json.loads(_resolve_manifest().read_text(encoding="utf-8"))
+def _manifest() -> dict[str, Any]:
+    global _cache, _cache_at
+    if _cache is None or (time.monotonic() - _cache_at) > _CACHE_TTL:
+        _cache = _fetch_manifest()
+        _cache_at = time.monotonic()
+    return _cache
 
 
 def _pages() -> dict[str, dict[str, Any]]:
-    pages = _load_manifest().get("pages")
+    pages = _manifest().get("pages")
     if not isinstance(pages, dict):
-        raise ValueError("page-manifest.json is missing a valid 'pages' object.")
+        raise ValueError("Neleus docs manifest is missing a valid 'pages' object.")
     return pages
 
 
@@ -82,7 +70,6 @@ def _excerpt(markdown: str, query: str, window: int = 220) -> str:
     flat = re.sub(r"\s+", " ", markdown).strip()
     if not flat:
         return ""
-
     idx = flat.lower().find(query.lower())
     if idx == -1:
         for token in re.split(r"\W+", query.lower()):
@@ -90,10 +77,8 @@ def _excerpt(markdown: str, query: str, window: int = 220) -> str:
                 idx = flat.lower().find(token)
                 if idx != -1:
                     break
-
     if idx == -1:
         return flat[:window].strip()
-
     start = max(0, idx - window // 3)
     end = min(len(flat), idx + (2 * window) // 3)
     snippet = flat[start:end].strip()
@@ -119,24 +104,15 @@ def search_docs(query: str, limit: int = 5) -> list[dict[str, Any]]:
         markdown = str(page.get("markdown", "")).lower()
 
         score = 0
-        # Exact phrase matches weighted highest; token matches as fallback
-        if q in title:
-            score += 60
-        if q in route.lower():
-            score += 40
-        if q in summary:
-            score += 30
-        if q in markdown:
-            score += 20
+        if q in title:       score += 60
+        if q in route.lower(): score += 40
+        if q in summary:     score += 30
+        if q in markdown:    score += 20
         for t in tokens:
-            if t in title:
-                score += 10
-            if t in section:
-                score += 4
-            if t in summary:
-                score += 4
-            if t in markdown:
-                score += 2
+            if t in title:   score += 10
+            if t in section: score += 4
+            if t in summary: score += 4
+            if t in markdown: score += 2
 
         if score <= 0:
             continue
@@ -154,9 +130,7 @@ def read_doc(route: str) -> dict[str, Any]:
     page = _pages().get(key)
     if page is None:
         known = ", ".join(sorted(_pages().keys()))
-        raise ValueError(
-            f"Unknown route {route!r}. Known routes: {known}"
-        )
+        raise ValueError(f"Unknown route {route!r}. Known routes: {known}")
     result = _page_summary(key, page)
     result["markdown"] = page.get("markdown", "")
     return result
