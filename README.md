@@ -32,7 +32,7 @@ Run market analysis, inspect order books, search docs, and place trades from Cla
 ## Preview
 
 <p align="center">
-  <img src="./assets/neleus-preview.png" alt=" Neleus MCP demo showing SOL market analysis in Claude" width="1000" />
+  <img src="./assets/neleus-preview.jpeg" alt=" Neleus MCP demo showing SOL market analysis in Claude" width="1000" />
 </p>
 ## Tools
 
