@@ -1,7 +1,39 @@
+<div align="center">
+
 # neleus-mcp
 
-MCP server exposing [Neleus](https://github.com/auralshin/neleus) Hyperliquid tools to Claude.
+### MCP server exposing [Neleus](https://github.com/auralshin/neleus) Hyperliquid tools to Claude
 
+Run market analysis, inspect order books, search docs, and place trades from Claude with Neleus-backed MCP tools.
+
+</div>
+
+<br />
+
+## Mock Questions
+
+- What’s the current RSI and trend for SOL?
+- Analyze ETH on the 1h timeframe.
+- Show support and resistance for BTC.
+- Scan perps for the strongest bullish setups.
+- Which markets have rising momentum right now?
+- What does the order book look like for HYPE?
+- Show bid/ask imbalance for SOL.
+- List the Neleus docs pages.
+- Search the docs for limit orders.
+- Read the docs page for market orders.
+- Place a limit buy for ETH at 3200.
+- Show my open orders.
+- Cancel my latest order.
+- Show my recent fills.
+
+<br />
+
+## Preview
+
+<p align="center">
+  <img src="./assets/neleus-preview.png" alt=" Neleus MCP demo showing SOL market analysis in Claude" width="1000" />
+</p>
 ## Tools
 
 ### Market (no credentials)
