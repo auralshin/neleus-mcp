@@ -89,7 +89,7 @@ def scan_markets(
     rows = []
     for row in scan.rows:
         d = row.to_dict() if hasattr(row, "to_dict") else vars(row)
-        # Keep only the fields Claude needs to present a ranked scan table
+        # Keep only the fields an MCP client needs to present a ranked scan table.
         rows.append({k: d[k] for k in ("symbol", "score", "rsi", "price_change_pct", "volatility_pct", "trend", "bias") if k in d})
     return rows
 

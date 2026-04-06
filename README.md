@@ -2,9 +2,9 @@
 
 # neleus-mcp
 
-### MCP server exposing [Neleus](https://github.com/auralshin/neleus) Hyperliquid tools to Claude
+### MCP server exposing [Neleus](https://github.com/auralshin/neleus) Hyperliquid tools to Claude and Codex
 
-Run market analysis, inspect order books, search docs, and place trades from Claude with Neleus-backed MCP tools.
+Run market analysis, inspect order books, search docs, and place trades from Claude, Codex, or any stdio-compatible MCP client with Neleus-backed MCP tools.
 
 </div>
 
@@ -32,7 +32,7 @@ Run market analysis, inspect order books, search docs, and place trades from Cla
 ## Preview
 
 <p align="center">
-  <img src="./assets/neleus-preview.jpeg" alt=" Neleus MCP demo showing SOL market analysis in Claude" width="1000" />
+  <img src="./assets/neleus-preview.jpeg" alt="Neleus MCP demo showing SOL market analysis in Claude" width="1000" />
 </p>
 ## Tools
 
@@ -92,7 +92,7 @@ claude mcp add neleus \
   -- uvx neleus-mcp
 ```
 
-### 2. Add to Claude Desktop
+### 3. Add to Claude Desktop
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
@@ -122,6 +122,21 @@ With trading credentials:
     }
   }
 }
+```
+
+### 4. Add to Codex CLI
+
+```bash
+codex mcp add neleus -- uvx neleus-mcp
+```
+
+With trading credentials:
+
+```bash
+codex mcp add neleus \
+  --env HYPERLIQUID_SIGNER_PRIVATE_KEY=0x... \
+  --env HYPERLIQUID_TESTNET=false \
+  -- uvx neleus-mcp
 ```
 
 ## Environment variables
